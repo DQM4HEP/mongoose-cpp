@@ -91,6 +91,62 @@ static int mg_get_cookie(const char *cookie_header, const char *var_name,
   return len;
 }
 
+
+static void mg_tokenize(const std::string &inputString, std::vector<std::string> &tokens, const std::string &delimiter)
+{
+	std::string::size_type lastPos = inputString.find_first_not_of(delimiter, 0);
+	std::string::size_type pos     = inputString.find_first_of(delimiter, lastPos);
+
+	while ((std::string::npos != pos) || (std::string::npos != lastPos))
+	{
+		tokens.push_back(inputString.substr(lastPos, pos - lastPos));
+		lastPos = inputString.find_first_not_of(delimiter, pos);
+		pos = inputString.find_first_of(delimiter, lastPos);
+	}
+}
+
+// static int get_var(const char *data, size_t data_len, const char *name,
+//                    char *dst, size_t dst_len)
+static int mg_get_vars( const char *data, size_t data_len, std::map<std::string, std::string> &vars)
+{
+  int len;
+
+  if (data == NULL || data_len == 0) {
+    len = -1;
+  } else {
+    len = 0;
+
+    std::string dataStr(data, data_len);
+    std::vector<std::string> pairTokens;
+    
+    mg_tokenize(dataStr, pairTokens, "&");
+
+    for(std::vector<std::string>::iterator iter = pairTokens.begin(), endIter = pairTokens.end();
+	endIter != iter ; ++iter)
+      {
+	std::vector<std::string> varTokens;
+	mg_tokenize(*iter, varTokens, "=");
+
+	if( varTokens.size() < 2  )
+	  return -1;
+
+	std::string var(varTokens[0]);
+	std::string val;
+	size_t i=1;
+
+	while(i != varTokens.size())
+	    val += varTokens[i++];
+
+	vars[ var ] = val;
+
+	len += ( var.size() + val.size() );
+      }
+  }
+
+  return len;
+}
+                   
+
 namespace Mongoose
 {
     Request::Request(struct mg_connection *connection_) :
@@ -212,6 +268,13 @@ namespace Mongoose
 
         return fallback;
     }
+
+
+  void Request::getVars(map<string,string> &vars)
+  {
+    if( connection->query_string != NULL )
+      mg_get_vars( connection->query_string, strlen(connection->query_string), vars );
+  }
 
     bool Request::hasCookie(string key)
     {

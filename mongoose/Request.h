@@ -57,6 +57,13 @@ namespace Mongoose
              */
             string get(string key, string fallback = "");
 
+	    /**
+	     * Get the complete vars and values map
+	     *
+	     * @param map the map of var and vals to receive
+	     */
+	    void getVars(map<string,string> &vars);
+
             /**
              * Checks if the given cookie exists
              *
