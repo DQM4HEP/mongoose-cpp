@@ -95,7 +95,7 @@ if (WIN32)
 endif (WIN32)
 
 # Compiling library
-add_library (mongoose ${SOURCES})
+add_library (mongoose SHARED ${SOURCES})
 target_link_libraries (mongoose ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 if (HAS_JSONCPP)
