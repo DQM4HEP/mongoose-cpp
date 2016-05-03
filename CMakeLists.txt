@@ -1,6 +1,23 @@
 cmake_minimum_required (VERSION 2.6)
-project (mongoose)
+project (Mongoose)
 find_package (Threads)
+
+SET( ${PROJECT_NAME}_VERSION_MAJOR 1 )
+SET( ${PROJECT_NAME}_VERSION_MINOR 0 ) 
+SET( ${PROJECT_NAME}_VERSION_PATCH 0 )
+
+SET( ${PROJECT_NAME}_SOVERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}" )
+SET( ${PROJECT_NAME}_VERSION   "${${PROJECT_NAME}_SOVERSION}.${${PROJECT_NAME}_VERSION_PATCH}" )
+
+LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake )
+
+
+include( MacroAddSharedLibrary )
+include( MacroDisplayStandardVariables )
+include( MacroCheckPackageLibs )
+include( MacroCheckPackageVersion )
+include( MacroExportPackageDeps )
+include( MacroGeneratePackageConfigFiles )
 
 option (MAIN
     "Compile the main" OFF)
@@ -95,8 +112,9 @@ if (WIN32)
 endif (WIN32)
 
 # Compiling library
-add_library (mongoose SHARED ${SOURCES})
-target_link_libraries (mongoose ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+add_shared_library (${PROJECT_NAME} ${SOURCES})
+target_link_libraries (${PROJECT_NAME} ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+install ( TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib )
 
 if (HAS_JSONCPP)
     target_link_libraries (mongoose json)
@@ -143,12 +161,15 @@ if (EXAMPLES)
     endif (CPP_BINDING)
 endif (EXAMPLES)
 
-# install
-set (INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "The directory the headers are installed in")
-configure_file(MongooseConfig.cmake.in MongooseConfig.cmake @ONLY)
+    
+install ( FILES mongoose.h DESTINATION include )
+install ( DIRECTORY mongoose DESTINATION include PATTERN "*.cpp" EXCLUDE )
+install ( DIRECTORY cmake DESTINATION . PATTERN "*.in" EXCLUDE )
+    
+# display some variables and write them to cache
+DISPLAY_STD_VARIABLES()
 
-install (FILES mongoose.h DESTINATION "${INCLUDE_INSTALL_DIR}")
-install (DIRECTORY mongoose DESTINATION "${INCLUDE_INSTALL_DIR}" PATTERN "*.cpp" EXCLUDE)
-install (TARGETS mongoose DESTINATION lib EXPORT mongoose-targets)
-install (EXPORT mongoose-targets DESTINATION "lib/cmake/mongoose" FILE MongooseTargets.cmake)
-install (FILES ${CMAKE_CURRENT_BINARY_DIR}/MongooseConfig.cmake DESTINATION "lib/cmake/mongoose")
+# generate and install following configuration files
+GENERATE_PACKAGE_CONFIGURATION_FILES( ${PROJECT_NAME}Config.cmake ${PROJECT_NAME}ConfigVersion.cmake ${PROJECT_NAME}LibDeps.cmake )
+
+
