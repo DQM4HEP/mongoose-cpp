@@ -129,34 +129,34 @@ endif ()
 # Compiling executable
 if (MAIN)
     add_executable (main main.c)
-    target_link_libraries (main mongoose)
+    target_link_libraries (main ${PROJECT_NAME})
 endif (MAIN)
         
 # Compiling tests
 if (EXAMPLES)
     add_executable (post examples/post.c)
-    target_link_libraries (post mongoose)
+    target_link_libraries (post ${PROJECT_NAME})
 
     if (NOT WIN32)
         add_executable (hello examples/hello.c)
-            target_link_libraries (hello mongoose)
+            target_link_libraries (hello ${PROJECT_NAME})
     endif (NOT WIN32)
 
     if (CPP_BINDING)
         add_executable (helloworld examples/helloworld.cpp)
-        target_link_libraries (helloworld  mongoose)
+        target_link_libraries (helloworld  ${PROJECT_NAME})
 
         add_executable (cpp examples/main.cpp)
-        target_link_libraries (cpp  mongoose)
+        target_link_libraries (cpp  ${PROJECT_NAME})
 
         if (HAS_JSONCPP)
             add_executable (json_api examples/json.cpp)
-            target_link_libraries (json_api  mongoose)
+            target_link_libraries (json_api  ${PROJECT_NAME})
         endif (HAS_JSONCPP)
 
         if (WEBSOCKET)
             add_executable (cpp_websocket examples/websocket.cpp)
-            target_link_libraries (cpp_websocket  mongoose)
+            target_link_libraries (cpp_websocket  ${PROJECT_NAME})
         endif (WEBSOCKET)
     endif (CPP_BINDING)
 endif (EXAMPLES)
