@@ -84,6 +84,11 @@ if (CPP_BINDING)
             )
 
         include_directories ("${JSONCPP_DIR}/include/")
+        find_library (
+            JSONCPP_LIBRARY
+            NAMES libjsoncpp${CMAKE_SHARED_LIBRARY_SUFFIX}
+            PATHS ${JSONCPP_DIR}/lib
+          )
     endif (HAS_JSONCPP)
 
     if (WEBSOCKET)
@@ -117,7 +122,7 @@ target_link_libraries (${PROJECT_NAME} ${EXTRA_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 install ( TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib )
 
 if (HAS_JSONCPP)
-    target_link_libraries (mongoose json)
+    target_link_libraries (${PROJECT_NAME} ${JSONCPP_LIBRARY})
 endif (HAS_JSONCPP)
 
 if (EXAMPLES OR MAIN)
